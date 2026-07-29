@@ -14,14 +14,42 @@ export function getFastProgress(fast, now = Date.now()) {
   const elapsedMs = Math.max(0, now - fast.startedAt)
   const targetMs = Math.max(60000, fast.targetMinutes * 60000)
   const remainingMs = Math.max(0, targetMs - elapsedMs)
+  const overtimeMs = Math.max(0, elapsedMs - targetMs)
+  const ratio = elapsedMs / targetMs
+  const complete = ratio >= 1
+  const overtimeRatio = overtimeMs / targetMs
+  const overtimeCycle = overtimeRatio === 0
+    ? 0
+    : overtimeRatio % 1 === 0
+      ? 1
+      : overtimeRatio % 1
+
   return {
     elapsedMs,
     remainingMs,
+    overtimeMs,
     targetMs,
-    percentage: Math.min(100, Math.round((elapsedMs / targetMs) * 100)),
-    complete: elapsedMs >= targetMs,
+    ratio,
+    ringRatio: Math.min(1, ratio),
+    overtimeCycle,
+    percentage: Math.min(100, Math.floor(ratio * 100)),
+    complete,
     endsAt: fast.startedAt + targetMs
   }
+}
+
+export function formatDigital(ms) {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000))
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+}
+
+export function formatCountdown(progress) {
+  return progress.complete
+    ? `+${formatDigital(progress.overtimeMs)}`
+    : formatDigital(progress.remainingMs)
 }
 
 export function formatDuration(ms, includeSeconds = false) {

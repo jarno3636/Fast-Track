@@ -1,0 +1,102 @@
+function dayKey(timestamp) {
+  const d = new Date(timestamp)
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+function startOfDay(timestamp) {
+  const d = new Date(timestamp)
+  d.setHours(0, 0, 0, 0)
+  return d.getTime()
+}
+
+function addDays(timestamp, amount) {
+  const d = new Date(timestamp)
+  d.setDate(d.getDate() + amount)
+  return d.getTime()
+}
+
+function completedDays(history) {
+  const days = {}
+  history.forEach((entry) => {
+    if (entry.completed) days[dayKey(entry.endedAt)] = true
+  })
+  return days
+}
+
+export function getStreakStats(history, now = Date.now()) {
+  const completed = completedDays(history)
+  const today = startOfDay(now)
+  const todayDone = Boolean(completed[dayKey(today)])
+  let cursor = todayDone ? today : addDays(today, -1)
+  let current = 0
+
+  while (completed[dayKey(cursor)]) {
+    current += 1
+    cursor = addDays(cursor, -1)
+  }
+
+  const sortedDays = Object.keys(completed).sort()
+  let best = 0
+  let run = 0
+  let previous = null
+
+  sortedDays.forEach((key) => {
+    const parts = key.split('-').map(Number)
+    const currentDay = new Date(parts[0], parts[1] - 1, parts[2]).getTime()
+    if (previous !== null && currentDay === addDays(previous, 1)) run += 1
+    else run = 1
+    if (run > best) best = run
+    previous = currentDay
+  })
+
+  const weekStart = new Date(today)
+  const day = weekStart.getDay()
+  const mondayOffset = day === 0 ? -6 : 1 - day
+  weekStart.setDate(weekStart.getDate() + mondayOffset)
+  weekStart.setHours(0, 0, 0, 0)
+
+  let weekCompleted = 0
+  for (let i = 0; i < 7; i += 1) {
+    if (completed[dayKey(addDays(weekStart.getTime(), i))]) weekCompleted += 1
+  }
+
+  const total = history.length
+  const completedCount = history.filter((entry) => entry.completed).length
+  const totalMinutes = history.reduce((sum, entry) => sum + Math.max(0, entry.actualMinutes || 0), 0)
+  const longestMinutes = history.reduce((max, entry) => Math.max(max, entry.actualMinutes || 0), 0)
+  const completionRate = total ? Math.round((completedCount / total) * 100) : 0
+
+  return {
+    current,
+    best,
+    weekCompleted,
+    completedCount,
+    completionRate,
+    totalMinutes,
+    longestMinutes,
+    todayDone,
+    level: getFlameLevel(current),
+    nextMilestone: getNextMilestone(current)
+  }
+}
+
+export function getFlameLevel(streak) {
+  if (streak >= 100) return 'OBSIDIAN'
+  if (streak >= 30) return 'PLATINUM'
+  if (streak >= 14) return 'GOLD'
+  if (streak >= 7) return 'SILVER'
+  if (streak >= 3) return 'BRONZE'
+  return 'EMBER'
+}
+
+export function getNextMilestone(streak) {
+  const milestones = [1, 3, 7, 14, 30, 50, 100, 365]
+  for (let i = 0; i < milestones.length; i += 1) {
+    if (streak < milestones[i]) return milestones[i]
+  }
+  return 365
+}
+
+function pad(value) {
+  return String(value).padStart(2, '0')
+}
