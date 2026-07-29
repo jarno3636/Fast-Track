@@ -1,45 +1,57 @@
-# Fast Track for Zepp OS
+# Fast Track for Zepp OS — v0.5 Build Ready
 
-Fast Track is a precision fasting tracker for newer Amazfit watches. Version 0.4 combines a premium circular countdown with a lightweight consistency system called **Your Flame**.
+Fast Track is a precision fasting timer for Amazfit watches, optimized first for the Amazfit T-Rex 3.
 
-## Included
+## Core experience
 
-- Circular countdown ring that fills clockwise to the fasting goal
-- Digital `HH:MM:SS` time remaining inside the ring
-- Overtime display using `+HH:MM:SS`
-- Secondary outer overtime arc after the goal is reached
-- Persistent timestamp-based timing after leaving or reopening the app
-- 12, 14, 16, 18, 20, 24, and 36-hour presets
-- Two-hour goal extension
-- Completion vibration
-- Current Flame streak and best streak
-- Weekly completion count
-- Ember, Bronze, Silver, Gold, Platinum, and Obsidian Flame levels
-- Completed fast count, success rate, and lifetime hours
-- Recent fasting history
-- Responsive 480 round, 466 round, and 390 × 450 square targets
+- Circular `HH:MM:SS` countdown
+- Clockwise progress ring
+- Full goal ring plus a separate overtime wrap
+- `+HH:MM:SS` after the goal
+- Timestamp-based persistence after closing the app
+- 12, 14, 16, 18, 20, 24, and 36-hour plans
+- Two-hour extension
+- Goal vibration
+- Current and best Flame streaks
+- Weekly completions, completion rate, lifetime hours, and recent history
 
-## Flame rules
+## First GitHub build
 
-A calendar day counts toward the Flame when at least one fast ending that day reaches its selected goal. Multiple completed fasts on the same day count as one day. The current Flame remains visible through the following day so users can complete today's fast without seeing the streak disappear at midnight.
+1. Push every file in this folder to the repository root.
+2. Open **Actions → Build Fast Track**.
+3. Select **Run workflow**.
+4. Download the `fast-track-v0.5-build` artifact after the green check.
 
-## Build in GitHub Actions
-
-1. Upload the project to a GitHub repository.
-2. Open **Actions**.
-3. Select **Build Fast Track**.
-4. Choose **Run workflow**.
-5. Download the `fast-track-build` artifact after the run completes.
-
-## Codespaces
-
-The included `.devcontainer` installs dependencies and the Zeus CLI in the cloud.
+The workflow installs both current Zepp build packages globally:
 
 ```bash
-npm run build
+npm install --global @zeppos/zpm@latest @zeppos/zeus-cli@latest
+```
+
+Installing both packages fixes the common `Cannot find module 'zeppos-app-utils'` Zeus environment failure.
+
+## Preview from Codespaces
+
+Open **Code → Codespaces → Create codespace on main**, then run:
+
+```bash
 npm run preview
 ```
 
-## Important before publishing
+Scan the QR code from Zepp Developer Mode to install the preview on the connected watch.
 
-Replace the development `appId` in `app.json` with the ID assigned through your Zepp developer account.
+## Device targets
+
+The package uses official `deviceSource` identifiers for:
+
+- Amazfit T-Rex 3 — 480 × 480
+- Amazfit Balance 2 — 480 × 480
+- Amazfit T-Rex 3 Pro 48 mm — 480 × 480
+- Amazfit Active 2 Round — 466 × 466
+- Amazfit T-Rex 3 Pro 44 mm — 466 × 466
+- Amazfit Active 2 Square — 390 × 450
+- Amazfit Bip 6 — 390 × 450
+
+## App ID
+
+`app.json` currently uses App ID `1121904`. Keep it only if that is the Fast Track App ID shown in your Zepp developer console.

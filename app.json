@@ -5,12 +5,12 @@
     "appName": "Fast Track",
     "appType": "app",
     "version": {
-      "code": 4,
-      "name": "0.4.0"
+      "code": 5,
+      "name": "0.5.0"
     },
     "icon": "icon.png",
     "vender": "Fast Track",
-    "description": "A polished precision fasting tracker with circular countdown, overtime ring, history, and Flame streaks."
+    "description": "Precision fasting timer with circular countdown, overtime tracking, history, and Flame streaks."
   },
   "permissions": [
     "device:os.local_storage",
@@ -19,7 +19,7 @@
   "runtime": {
     "apiVersion": {
       "compatible": "3.0.0",
-      "target": "4.2.0",
+      "target": "4.0.0",
       "minVersion": "3.0.0"
     }
   },
@@ -36,9 +36,40 @@
       },
       "platforms": [
         {
-          "name": "round-480",
-          "st": "r",
-          "sr": "w480"
+          "name": "t-rex-3",
+          "deviceSource": 8716544
+        },
+        {
+          "name": "t-rex-3",
+          "deviceSource": 8716545
+        },
+        {
+          "name": "t-rex-3",
+          "deviceSource": 8716547
+        },
+        {
+          "name": "balance-2",
+          "deviceSource": 9568512
+        },
+        {
+          "name": "balance-2",
+          "deviceSource": 9568513
+        },
+        {
+          "name": "balance-2",
+          "deviceSource": 9568515
+        },
+        {
+          "name": "t-rex-3-pro-48",
+          "deviceSource": 10551552
+        },
+        {
+          "name": "t-rex-3-pro-48",
+          "deviceSource": 10551553
+        },
+        {
+          "name": "t-rex-3-pro-48",
+          "deviceSource": 10551555
         }
       ],
       "designWidth": 480
@@ -55,9 +86,32 @@
       },
       "platforms": [
         {
-          "name": "round-466",
-          "st": "r",
-          "sr": "w466"
+          "name": "active-2-round",
+          "deviceSource": 8913152
+        },
+        {
+          "name": "active-2-round",
+          "deviceSource": 8913153
+        },
+        {
+          "name": "active-2-round",
+          "deviceSource": 8913155
+        },
+        {
+          "name": "active-2-round",
+          "deviceSource": 8913159
+        },
+        {
+          "name": "t-rex-3-pro-44",
+          "deviceSource": 10682624
+        },
+        {
+          "name": "t-rex-3-pro-44",
+          "deviceSource": 10682625
+        },
+        {
+          "name": "t-rex-3-pro-44",
+          "deviceSource": 10682627
         }
       ],
       "designWidth": 480
@@ -74,9 +128,28 @@
       },
       "platforms": [
         {
-          "name": "square-390",
-          "st": "s",
-          "sr": "w390"
+          "name": "active-2-square",
+          "deviceSource": 10223872
+        },
+        {
+          "name": "active-2-square",
+          "deviceSource": 10223873
+        },
+        {
+          "name": "active-2-square",
+          "deviceSource": 10223875
+        },
+        {
+          "name": "bip-6",
+          "deviceSource": 9765120
+        },
+        {
+          "name": "bip-6",
+          "deviceSource": 9765121
+        },
+        {
+          "name": "bip-6",
+          "deviceSource": 10158337
         }
       ],
       "designWidth": 390

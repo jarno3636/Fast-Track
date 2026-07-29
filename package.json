@@ -1,17 +1,15 @@
 {
   "name": "fast-track-zepp",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
+  "description": "Premium fasting timer and Flame streak tracker for Amazfit watches.",
   "scripts": {
     "dev": "zeus dev",
     "preview": "zeus preview",
     "build": "zeus build",
-    "build:ci": "zeus build"
-  },
-  "devDependencies": {
-    "@zeppos/zeus-cli": "^1.5.0"
+    "doctor": "node --version && npm --version && zeus --version && zpm --version"
   },
   "engines": {
-    "node": ">=18 <23"
+    "node": ">=20 <21"
   }
 }
