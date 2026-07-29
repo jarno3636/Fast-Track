@@ -1,0 +1,79 @@
+{
+  "configVersion": "v3",
+  "app": {
+    "appId": 1059001,
+    "appName": "Fast Track",
+    "appType": "app",
+    "version": {
+      "code": 2,
+      "name": "0.2.0"
+    },
+    "icon": "icon.png",
+    "vender": "Fast Track",
+    "description": "A dependable fasting tracker for newer Amazfit watches."
+  },
+  "permissions": [
+    "device:os.local_storage",
+    "data:os.device.info"
+  ],
+  "runtime": {
+    "apiVersion": {
+      "compatible": "3.0.0",
+      "target": "4.2.0",
+      "minVersion": "3.0.0"
+    }
+  },
+  "targets": {
+    "round-480": {
+      "module": {
+        "page": {
+          "pages": [
+            "page/home/index",
+            "page/plans/index",
+            "page/history/index"
+          ]
+        }
+      },
+      "platforms": [
+        { "name": "round-480", "st": "r", "sr": "w480" }
+      ],
+      "designWidth": 480
+    },
+    "round-466": {
+      "module": {
+        "page": {
+          "pages": [
+            "page/home/index",
+            "page/plans/index",
+            "page/history/index"
+          ]
+        }
+      },
+      "platforms": [
+        { "name": "round-466", "st": "r", "sr": "w466" }
+      ],
+      "designWidth": 480
+    },
+    "square-390": {
+      "module": {
+        "page": {
+          "pages": [
+            "page/home/index",
+            "page/plans/index",
+            "page/history/index"
+          ]
+        }
+      },
+      "platforms": [
+        { "name": "square-390", "st": "s", "sr": "w390" }
+      ],
+      "designWidth": 390
+    }
+  },
+  "i18n": {
+    "en-US": {
+      "appName": "Fast Track"
+    }
+  },
+  "defaultLanguage": "en-US"
+}
