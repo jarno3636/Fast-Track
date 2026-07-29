@@ -1,66 +1,45 @@
 # Fast Track for Zepp OS
 
-Fast Track is a persistent fasting timer for newer Amazfit watches. Version 0.2 uses one shared codebase with responsive layouts for round and square displays.
+Fast Track is a precision fasting tracker for newer Amazfit watches. Version 0.4 combines a premium circular countdown with a lightweight consistency system called **Your Flame**.
 
-## Included device families
+## Included
 
-### 480 × 480 round
-- Amazfit T-Rex 3
-- T-Rex 3 Pro 48mm
-- T-Rex Ultra 2
-- Balance / Balance 2 / Balance 3
-- Balance Ultra
-- Active Max
-- Cheetah Pro and newer 480px round models
+- Circular countdown ring that fills clockwise to the fasting goal
+- Digital `HH:MM:SS` time remaining inside the ring
+- Overtime display using `+HH:MM:SS`
+- Secondary outer overtime arc after the goal is reached
+- Persistent timestamp-based timing after leaving or reopening the app
+- 12, 14, 16, 18, 20, 24, and 36-hour presets
+- Two-hour goal extension
+- Completion vibration
+- Current Flame streak and best streak
+- Weekly completion count
+- Ember, Bronze, Silver, Gold, Platinum, and Obsidian Flame levels
+- Completed fast count, success rate, and lifetime hours
+- Recent fasting history
+- Responsive 480 round, 466 round, and 390 × 450 square targets
 
-### 466 × 466 round
-- Active 2 Round
-- Active 3 Premium
-- T-Rex 3 Pro 44mm
-- GTR 4
-- Cheetah 2 Pro
+## Flame rules
 
-### 390 × 450 square
-- Active
-- Active 2 Square
-- Bip 6
-- GTS 4
-- Cheetah Square
+A calendar day counts toward the Flame when at least one fast ending that day reaches its selected goal. Multiple completed fasts on the same day count as one day. The current Flame remains visible through the following day so users can complete today's fast without seeing the streak disappear at midnight.
 
-The v3 target qualifiers also allow compatible newer devices with the same screen shape and width to use the matching build target.
+## Build in GitHub Actions
 
-## Phone-only GitHub workflow
+1. Upload the project to a GitHub repository.
+2. Open **Actions**.
+3. Select **Build Fast Track**.
+4. Choose **Run workflow**.
+5. Download the `fast-track-build` artifact after the run completes.
 
-1. Create a new GitHub repository.
-2. Upload all files from this project, including the hidden `.github` and `.devcontainer` folders.
-3. Open the repository in Safari.
-4. Use **Code → Codespaces → Create codespace** for browser editing.
-5. For a build without a terminal, open **Actions → Build Fast Track → Run workflow**.
-6. Open the completed workflow and download the `fast-track-zab-*` artifact.
+## Codespaces
 
-GitHub Actions builds every configured target and uploads the resulting `.zab` files from `dist/`.
-
-## Codespaces commands
+The included `.devcontainer` installs dependencies and the Zeus CLI in the cloud.
 
 ```bash
-npm install
 npm run build
 npm run preview
 ```
 
-`npm run preview` may require signing into your Zepp developer account and displaying the generated QR code on another screen so the Zepp phone app can scan it.
-
 ## Important before publishing
 
-The current `appId` is a development placeholder. Replace it with the numeric App ID assigned in the Zepp developer console before store submission.
-
-## Current functionality
-
-- 12, 14, 16, 18, 20, 24 and 36-hour presets
-- Persistent active-fast state
-- Live elapsed and remaining time
-- Progress arc on round displays
-- Progress bar on square displays
-- Completion vibration
-- Two-hour extension
-- Recent local history
+Replace the development `appId` in `app.json` with the ID assigned through your Zepp developer account.

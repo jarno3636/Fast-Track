@@ -5,12 +5,12 @@
     "appName": "Fast Track",
     "appType": "app",
     "version": {
-      "code": 2,
-      "name": "0.2.0"
+      "code": 4,
+      "name": "0.4.0"
     },
     "icon": "icon.png",
     "vender": "Fast Track",
-    "description": "A dependable fasting tracker for newer Amazfit watches."
+    "description": "A polished precision fasting tracker with circular countdown, overtime ring, history, and Flame streaks."
   },
   "permissions": [
     "device:os.local_storage",
@@ -35,7 +35,11 @@
         }
       },
       "platforms": [
-        { "name": "round-480", "st": "r", "sr": "w480" }
+        {
+          "name": "round-480",
+          "st": "r",
+          "sr": "w480"
+        }
       ],
       "designWidth": 480
     },
@@ -50,7 +54,11 @@
         }
       },
       "platforms": [
-        { "name": "round-466", "st": "r", "sr": "w466" }
+        {
+          "name": "round-466",
+          "st": "r",
+          "sr": "w466"
+        }
       ],
       "designWidth": 480
     },
@@ -65,7 +73,11 @@
         }
       },
       "platforms": [
-        { "name": "square-390", "st": "s", "sr": "w390" }
+        {
+          "name": "square-390",
+          "st": "s",
+          "sr": "w390"
+        }
       ],
       "designWidth": 390
     }
