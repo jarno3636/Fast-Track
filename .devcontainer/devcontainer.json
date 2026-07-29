@@ -1,13 +1,18 @@
 {
-  "name": "Fast Track",
+  "name": "Fast Track Zepp OS",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
-  "postCreateCommand": "npm install && npm install -g @zeppos/zeus-cli",
+
+  "postCreateCommand": "npm install && npm install --global @zeppos/zeus-cli@latest && zeus -v",
+
   "customizations": {
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "redhat.vscode-yaml"
       ]
     }
-  }
+  },
+
+  "remoteUser": "node"
 }
