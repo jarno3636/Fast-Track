@@ -1,99 +1,47 @@
-import { createWidget, widget, align } from '@zos/ui'
-import { back } from '@zos/router'
+import { back, push } from '@zos/router'
 import { getHistory } from '../../utils/storage'
 import { formatDuration } from '../../utils/fasting'
 import { getStreakStats } from '../../utils/streaks'
-import { DEVICE_WIDTH, IS_SQUARE, sx, sy } from '../../utils/device'
+import { IS_SQUARE } from '../../utils/device'
+import { COLORS } from '../../theme/index'
+import { text, pill, card, divider } from '../../components/ui'
 
-const WHITE = 0xffffff
-const MUTED = 0x9aa4ae
-const ORANGE = 0xff8a18
-const FIRE = 0xff4b16
-const GREEN = 0x67f0a3
-const DARK = 0x171311
-
+const W = IS_SQUARE ? 390 : 480
 Page({
   build() {
     const history = getHistory()
-    const stats = getStreakStats(history)
+    const s = getStreakStats(history)
+    text({ x: 0, y: IS_SQUARE ? 39 : 27, w: W, h: 30, value: 'YOUR PROGRESS', color: COLORS.orange, size: 22 })
+    text({ x: 0, y: IS_SQUARE ? 70 : 59, w: W, h: 48, value: `${s.current} DAY FLAME`, color: COLORS.cream, size: IS_SQUARE ? 34 : 39 })
+    text({ x: 25, y: IS_SQUARE ? 114 : 105, w: W - 50, h: 22, value: `${s.level}  •  BEST ${s.best}  •  ${s.weekCompleted}/7 THIS WEEK`, color: COLORS.muted, size: 12 })
 
-    createWidget(widget.TEXT, {
-      x: 0, y: sy(IS_SQUARE ? 52 : 35), w: DEVICE_WIDTH, h: sy(38),
-      text: 'YOUR FLAME', color: ORANGE, text_size: sx(IS_SQUARE ? 24 : 28),
-      align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    createWidget(widget.TEXT, {
-      x: 0, y: sy(IS_SQUARE ? 88 : 74), w: DEVICE_WIDTH, h: sy(52),
-      text: `${stats.current} DAYS`, color: WHITE, text_size: sx(IS_SQUARE ? 39 : 44),
-      align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    createWidget(widget.TEXT, {
-      x: sx(30), y: sy(IS_SQUARE ? 134 : 126), w: DEVICE_WIDTH - sx(60), h: sy(24),
-      text: `${stats.level}  •  BEST ${stats.best}  •  WEEK ${stats.weekCompleted}/7`,
-      color: MUTED, text_size: sx(IS_SQUARE ? 14 : 16),
-      align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
+    const x = IS_SQUARE ? 18 : 50, y = IS_SQUARE ? 147 : 139, gap = IS_SQUARE ? 88 : 96
+    this.stat(x, y, 'FASTS', String(s.completedCount))
+    this.stat(x + gap, y, 'SUCCESS', `${s.completionRate}%`)
+    this.stat(x + gap * 2, y, 'AVERAGE', shortDuration(s.averageMinutes))
+    this.stat(x + gap * 3, y, 'LONGEST', shortDuration(s.longestMinutes))
 
-    const statY = IS_SQUARE ? 172 : 164
-    this.stat('COMPLETED', String(stats.completedCount), IS_SQUARE ? 24 : 68, statY)
-    this.stat('SUCCESS', `${stats.completionRate}%`, IS_SQUARE ? 145 : 190, statY)
-    this.stat('HOURS', String(Math.floor(stats.totalMinutes / 60)), IS_SQUARE ? 266 : 312, statY)
-
-    createWidget(widget.TEXT, {
-      x: sx(IS_SQUARE ? 24 : 68), y: sy(IS_SQUARE ? 242 : 232),
-      w: DEVICE_WIDTH - sx(IS_SQUARE ? 48 : 136), h: sy(30),
-      text: 'RECENT FASTS', color: WHITE, text_size: sx(IS_SQUARE ? 19 : 21),
-      align_h: align.LEFT, align_v: align.CENTER_V
-    })
-
+    text({ x: IS_SQUARE ? 22 : 62, y: IS_SQUARE ? 229 : 221, w: W - (IS_SQUARE ? 44 : 124), h: 26, value: 'RECENT FASTS', color: COLORS.white, size: 17, horizontal: 0 })
     if (!history.length) {
-      createWidget(widget.TEXT, {
-        x: sx(IS_SQUARE ? 30 : 70), y: sy(IS_SQUARE ? 285 : 276),
-        w: DEVICE_WIDTH - sx(IS_SQUARE ? 60 : 140), h: sy(70),
-        text: 'Complete your first fast\nto light your Flame.',
-        color: MUTED, text_size: sx(IS_SQUARE ? 19 : 21),
-        align_h: align.CENTER_H, align_v: align.CENTER_V
-      })
+      card({ x: IS_SQUARE ? 26 : 65, y: IS_SQUARE ? 265 : 257, w: IS_SQUARE ? 338 : 350, h: 94 })
+      text({ x: IS_SQUARE ? 45 : 85, y: IS_SQUARE ? 280 : 272, w: IS_SQUARE ? 300 : 310, h: 60, value: 'Complete your first fast\nto light your Flame.', color: COLORS.muted, size: 18 })
     } else {
       history.slice(0, 3).forEach((entry, index) => {
-        const y = (IS_SQUARE ? 278 : 270) + index * (IS_SQUARE ? 43 : 45)
-        createWidget(widget.TEXT, {
-          x: sx(IS_SQUARE ? 27 : 70), y: sy(y), w: sx(IS_SQUARE ? 155 : 180), h: sy(38),
-          text: formatDate(entry.endedAt), color: WHITE, text_size: sx(IS_SQUARE ? 16 : 18),
-          align_h: align.LEFT, align_v: align.CENTER_V
-        })
-        createWidget(widget.TEXT, {
-          x: sx(IS_SQUARE ? 187 : 245), y: sy(y), w: sx(IS_SQUARE ? 175 : 165), h: sy(38),
-          text: `${formatDuration(entry.actualMinutes * 60000)} ${entry.completed ? 'DONE' : 'EARLY'}`,
-          color: entry.completed ? GREEN : MUTED, text_size: sx(IS_SQUARE ? 15 : 17),
-          align_h: align.RIGHT, align_v: align.CENTER_V
-        })
+        const cy = (IS_SQUARE ? 260 : 252) + index * 50
+        card({ x: IS_SQUARE ? 22 : 60, y: cy, w: IS_SQUARE ? 346 : 360, h: 43, radius: 15 })
+        text({ x: IS_SQUARE ? 34 : 74, y: cy + 2, w: 92, h: 20, value: entry.completed ? 'COMPLETE' : 'ENDED', color: entry.completed ? COLORS.green : COLORS.muted, size: 11, horizontal: 0 })
+        text({ x: IS_SQUARE ? 34 : 74, y: cy + 20, w: 100, h: 19, value: formatDate(entry.endedAt), color: COLORS.muted, size: 12, horizontal: 0 })
+        text({ x: IS_SQUARE ? 165 : 225, y: cy + 4, w: IS_SQUARE ? 185 : 175, h: 34, value: formatDuration(entry.actualMinutes * 60000), color: COLORS.white, size: 18, horizontal: 2 })
       })
     }
-
-    createWidget(widget.BUTTON, {
-      x: sx(IS_SQUARE ? 115 : 160), y: sy(IS_SQUARE ? 404 : 413),
-      w: sx(160), h: sy(42), radius: sx(22), normal_color: DARK,
-      press_color: 0x2a211e, text: 'BACK', text_size: sx(IS_SQUARE ? 18 : 19),
-      color: WHITE, click_func: () => back()
-    })
+    pill({ x: IS_SQUARE ? 45 : 73, y: IS_SQUARE ? 416 : 426, w: IS_SQUARE ? 136 : 150, h: 38, label: 'AWARDS', onClick: () => push({ url: 'page/achievements/index' }) })
+    pill({ x: IS_SQUARE ? 209 : 257, y: IS_SQUARE ? 416 : 426, w: IS_SQUARE ? 136 : 150, h: 38, label: 'BACK', onClick: () => back() })
   },
-
-  stat(label, value, x, y) {
-    createWidget(widget.TEXT, {
-      x: sx(x), y: sy(y), w: sx(IS_SQUARE ? 100 : 100), h: sy(30),
-      text: value, color: FIRE, text_size: sx(IS_SQUARE ? 24 : 27),
-      align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    createWidget(widget.TEXT, {
-      x: sx(x), y: sy(y + 29), w: sx(IS_SQUARE ? 100 : 100), h: sy(22),
-      text: label, color: MUTED, text_size: sx(IS_SQUARE ? 12 : 13),
-      align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
+  stat(x, y, label, value) {
+    card({ x, y, w: IS_SQUARE ? 82 : 88, h: 64, radius: 18 })
+    text({ x, y: y + 7, w: IS_SQUARE ? 82 : 88, h: 30, value, color: COLORS.fire, size: IS_SQUARE ? 20 : 22 })
+    text({ x, y: y + 38, w: IS_SQUARE ? 82 : 88, h: 17, value: label, color: COLORS.muted, size: 9 })
   }
 })
-
-function formatDate(timestamp) {
-  const date = new Date(timestamp)
-  return `${date.getMonth() + 1}/${date.getDate()}`
-}
+function formatDate(timestamp) { const d = new Date(timestamp); return `${d.getMonth() + 1}/${d.getDate()}` }
+function shortDuration(minutes) { if (!minutes) return '0H'; if (minutes < 60) return `${minutes}M`; return `${Math.floor(minutes / 60)}H` }
