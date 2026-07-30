@@ -5,12 +5,12 @@
     "appName": "Fast Track",
     "appType": "app",
     "version": {
-      "code": 5,
-      "name": "0.5.0"
+      "code": 22,
+      "name": "2.2.0"
     },
     "icon": "icon.png",
     "vender": "Fast Track",
-    "description": "Precision fasting timer with circular countdown, overtime tracking, history, and Flame streaks."
+    "description": "Premium AMOLED fasting timer with animated progress, overtime, Flame streaks, achievements, rich history, statistics, and on-watch settings."
   },
   "permissions": [
     "device:os.local_storage",
@@ -30,7 +30,9 @@
           "pages": [
             "page/home/index",
             "page/plans/index",
-            "page/history/index"
+            "page/history/index",
+            "page/achievements/index",
+            "page/settings/index"
           ]
         }
       },
@@ -80,7 +82,9 @@
           "pages": [
             "page/home/index",
             "page/plans/index",
-            "page/history/index"
+            "page/history/index",
+            "page/achievements/index",
+            "page/settings/index"
           ]
         }
       },
@@ -122,7 +126,9 @@
           "pages": [
             "page/home/index",
             "page/plans/index",
-            "page/history/index"
+            "page/history/index",
+            "page/achievements/index",
+            "page/settings/index"
           ]
         }
       },

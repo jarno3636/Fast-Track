@@ -1,57 +1,32 @@
-# Fast Track for Zepp OS — v0.5 Build Ready
+# Fast Track 2.2
 
-Fast Track is a precision fasting timer for Amazfit watches, optimized first for the Amazfit T-Rex 3.
+Premium fasting timer for Zepp OS and Amazfit watches.
 
-## Core experience
+## Included in 2.2
 
-- Circular `HH:MM:SS` countdown
-- Clockwise progress ring
-- Full goal ring plus a separate overtime wrap
-- `+HH:MM:SS` after the goal
-- Timestamp-based persistence after closing the app
-- 12, 14, 16, 18, 20, 24, and 36-hour plans
-- Two-hour extension
-- Goal vibration
-- Current and best Flame streaks
-- Weekly completions, completion rate, lifetime hours, and recent history
+- AMOLED-first visual system with fiery orange, amber, and molten red accents
+- Responsive layouts for supported round and square devices
+- Circular countdown ring with a separate overtime ring
+- Completion haptics and goal-state visuals
+- Flame streaks, best streak, weekly progress, and milestones
+- Premium fasting-plan selector
+- Statistics dashboard with completion rate, average, longest, and recent fasts
+- Eight achievement definitions with automatic unlock logic
+- On-watch settings for haptics, encouragement, and 24-hour clock preference
+- Local-only storage for active fasts, up to 100 history entries, and preferences
 
-## First GitHub build
-
-1. Push every file in this folder to the repository root.
-2. Open **Actions → Build Fast Track**.
-3. Select **Run workflow**.
-4. Download the `fast-track-v0.5-build` artifact after the green check.
-
-The workflow installs both current Zepp build packages globally:
+## Build
 
 ```bash
-npm install --global @zeppos/zpm@latest @zeppos/zeus-cli@latest
+npm install -g @zeppos/zeus-cli
+npm install
+zeus build
 ```
 
-Installing both packages fixes the common `Cannot find module 'zeppos-app-utils'` Zeus environment failure.
+The build artifact will be a `.zab` file in the generated output directory.
 
-## Preview from Codespaces
+## Version
 
-Open **Code → Codespaces → Create codespace on main**, then run:
-
-```bash
-npm run preview
-```
-
-Scan the QR code from Zepp Developer Mode to install the preview on the connected watch.
-
-## Device targets
-
-The package uses official `deviceSource` identifiers for:
-
-- Amazfit T-Rex 3 — 480 × 480
-- Amazfit Balance 2 — 480 × 480
-- Amazfit T-Rex 3 Pro 48 mm — 480 × 480
-- Amazfit Active 2 Round — 466 × 466
-- Amazfit T-Rex 3 Pro 44 mm — 466 × 466
-- Amazfit Active 2 Square — 390 × 450
-- Amazfit Bip 6 — 390 × 450
-
-## App ID
-
-`app.json` currently uses App ID `1121904`. Keep it only if that is the Fast Track App ID shown in your Zepp developer console.
+- App ID: `1121904`
+- Version: `2.2.0`
+- Version code: `22`

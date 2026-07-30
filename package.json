@@ -1,6 +1,6 @@
 {
   "name": "fast-track-zepp",
-  "version": "0.5.0",
+  "version": "2.2.0",
   "private": true,
   "description": "Premium fasting timer and Flame streak tracker for Amazfit watches.",
   "scripts": {
