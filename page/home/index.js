@@ -1,221 +1,99 @@
 import { createWidget, widget, align, prop } from '@zos/ui'
 import { push } from '@zos/router'
 import { Vibrator, VIBRATOR_SCENE_NOTIFICATION } from '@zos/sensor'
-import { getActiveFast, saveActiveFast, clearActiveFast, addHistory, getHistory } from '../../utils/storage'
+import { getActiveFast, saveActiveFast, clearActiveFast, addHistory, getHistory, getSettings } from '../../utils/storage'
 import { getFastProgress, formatCountdown, formatClock, getStage } from '../../utils/fasting'
 import { getStreakStats } from '../../utils/streaks'
 import { DEVICE_WIDTH, IS_SQUARE, sx, sy } from '../../utils/device'
+import { COLORS } from '../../theme/index'
+import { text, pill, card, divider } from '../../components/ui'
 
-const WHITE = 0xffffff
-const MUTED = 0xa7a9ad
-const TRACK = 0x292321
-const SURFACE = 0x171311
-const ORANGE = 0xff8a18
-const FIRE = 0xff4b16
-const HOT = 0xff2f0a
-const CREAM = 0xfff3e8
 const ARC_START = -90
 const ARC_SWEEP = 359
+const W = IS_SQUARE ? 390 : 480
 
 Page({
-  state: { fast: null, interval: null, widgets: {}, streaks: null },
-
+  state: { fast: null, interval: null, widgets: {}, stats: null, settings: null },
   build() {
     this.state.fast = getActiveFast()
-    this.state.streaks = getStreakStats(getHistory())
+    this.state.stats = getStreakStats(getHistory())
+    this.state.settings = getSettings()
     this.render()
     this.state.interval = setInterval(() => this.tick(), 1000)
   },
-
-  onDestroy() {
-    if (this.state.interval) clearInterval(this.state.interval)
-  },
-
+  onDestroy() { if (this.state.interval) clearInterval(this.state.interval) },
   tick() {
     if (!this.state.fast) return
     const progress = getFastProgress(this.state.fast)
     this.updateActiveWidgets(progress)
     if (progress.complete && !this.state.fast.completionAlertSent) {
-      try {
-        const vibrator = new Vibrator()
-        vibrator.start({ mode: VIBRATOR_SCENE_NOTIFICATION })
-      } catch (error) {
-        console.log('Vibration unavailable', error)
+      if (this.state.settings.haptics) {
+        try { new Vibrator().start({ mode: VIBRATOR_SCENE_NOTIFICATION }) } catch (error) { console.log('Vibration unavailable', error) }
       }
       this.state.fast.completionAlertSent = true
       saveActiveFast(this.state.fast)
     }
   },
-
-  render() {
-    if (this.state.fast) this.renderActive()
-    else this.renderIdle()
-  },
-
+  render() { this.state.fast ? this.renderActive() : this.renderIdle() },
   renderIdle() {
-    const stats = this.state.streaks
-    createWidget(widget.TEXT, {
-      x: 0, y: sy(IS_SQUARE ? 55 : 48), w: DEVICE_WIDTH, h: sy(38),
-      text: 'FAST TRACK', color: ORANGE, text_size: sx(IS_SQUARE ? 25 : 29),
-      align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
+    const s = this.state.stats
+    text({ x: 0, y: IS_SQUARE ? 44 : 32, w: W, h: 28, value: 'FAST TRACK', color: COLORS.orange, size: IS_SQUARE ? 20 : 23 })
+    text({ x: 0, y: IS_SQUARE ? 73 : 62, w: W, h: 20, value: 'DISCIPLINE, IN MOTION', color: COLORS.muted, size: 12 })
 
-    createWidget(widget.ARC, {
-      x: sx(IS_SQUARE ? 102 : 139), y: sy(IS_SQUARE ? 105 : 100),
-      w: sx(IS_SQUARE ? 186 : 202), h: sy(IS_SQUARE ? 186 : 202),
-      start_angle: ARC_START, end_angle: ARC_START + ARC_SWEEP,
-      color: TRACK, line_width: sx(12)
-    })
-    createWidget(widget.ARC, {
-      x: sx(IS_SQUARE ? 102 : 139), y: sy(IS_SQUARE ? 105 : 100),
-      w: sx(IS_SQUARE ? 186 : 202), h: sy(IS_SQUARE ? 186 : 202),
-      start_angle: ARC_START,
-      end_angle: ARC_START + Math.max(12, ARC_SWEEP * Math.min(1, stats.current / Math.max(1, stats.nextMilestone))),
-      color: stats.current ? FIRE : 0x573024, line_width: sx(12)
-    })
+    const ring = IS_SQUARE ? { x: 82, y: 102, w: 226, h: 226 } : { x: 113, y: 91, w: 254, h: 254 }
+    createWidget(widget.ARC, { x: sx(ring.x), y: sy(ring.y), w: sx(ring.w), h: sy(ring.h), start_angle: ARC_START, end_angle: ARC_START + ARC_SWEEP, color: COLORS.track, line_width: sx(15) })
+    createWidget(widget.ARC, { x: sx(ring.x), y: sy(ring.y), w: sx(ring.w), h: sy(ring.h), start_angle: ARC_START, end_angle: ARC_START + Math.max(18, ARC_SWEEP * Math.min(1, s.current / Math.max(1, s.nextMilestone))), color: s.current ? COLORS.fire : 0x563126, line_width: sx(15) })
+    createWidget(widget.ARC, { x: sx(ring.x + 10), y: sy(ring.y + 10), w: sx(ring.w - 20), h: sy(ring.h - 20), start_angle: ARC_START, end_angle: ARC_START + ARC_SWEEP, color: 0x120d0b, line_width: sx(2) })
 
-    createWidget(widget.TEXT, {
-      x: sx(IS_SQUARE ? 90 : 130), y: sy(IS_SQUARE ? 138 : 136),
-      w: DEVICE_WIDTH - sx(IS_SQUARE ? 180 : 260), h: sy(44),
-      text: String(stats.current), color: CREAM, text_size: sx(IS_SQUARE ? 44 : 50),
-      align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    createWidget(widget.TEXT, {
-      x: sx(IS_SQUARE ? 80 : 120), y: sy(IS_SQUARE ? 183 : 184),
-      w: DEVICE_WIDTH - sx(IS_SQUARE ? 160 : 240), h: sy(26),
-      text: stats.current === 1 ? 'DAY FLAME' : 'DAY FLAME', color: ORANGE,
-      text_size: sx(IS_SQUARE ? 16 : 18), align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    createWidget(widget.TEXT, {
-      x: sx(IS_SQUARE ? 65 : 115), y: sy(IS_SQUARE ? 218 : 222),
-      w: DEVICE_WIDTH - sx(IS_SQUARE ? 130 : 230), h: sy(25),
-      text: `${stats.level}  •  BEST ${stats.best}`, color: MUTED,
-      text_size: sx(IS_SQUARE ? 14 : 16), align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
+    text({ x: ring.x, y: ring.y + 46, w: ring.w, h: 29, value: 'FLAME', color: COLORS.orange, size: 15 })
+    text({ x: ring.x, y: ring.y + 73, w: ring.w, h: 65, value: String(s.current), color: COLORS.cream, size: IS_SQUARE ? 52 : 60 })
+    text({ x: ring.x, y: ring.y + 136, w: ring.w, h: 27, value: s.current === 1 ? 'DAY' : 'DAYS', color: COLORS.white, size: 18 })
+    text({ x: ring.x, y: ring.y + 166, w: ring.w, h: 22, value: `${s.level}  •  BEST ${s.best}`, color: COLORS.muted, size: 13 })
 
-    createWidget(widget.BUTTON, {
-      x: sx(IS_SQUARE ? 54 : 90), y: sy(IS_SQUARE ? 292 : 300),
-      w: DEVICE_WIDTH - sx(IS_SQUARE ? 108 : 180), h: sy(66), radius: sx(33),
-      normal_color: ORANGE, press_color: FIRE,
-      text: 'START FAST', text_size: sx(IS_SQUARE ? 24 : 27), color: 0x170b03,
-      click_func: () => push({ url: 'page/plans/index' })
-    })
-    createWidget(widget.BUTTON, {
-      x: sx(IS_SQUARE ? 95 : 140), y: sy(IS_SQUARE ? 380 : 392),
-      w: DEVICE_WIDTH - sx(IS_SQUARE ? 190 : 280), h: sy(44), radius: sx(22),
-      normal_color: SURFACE, press_color: TRACK,
-      text: 'PROGRESS', text_size: sx(IS_SQUARE ? 18 : 20), color: WHITE,
-      click_func: () => push({ url: 'page/history/index' })
-    })
+    pill({ x: IS_SQUARE ? 46 : 82, y: IS_SQUARE ? 347 : 358, w: IS_SQUARE ? 298 : 316, h: 62, label: 'START FAST', primary: true, onClick: () => push({ url: 'page/plans/index' }) })
+    this.navRow(IS_SQUARE ? 416 : 431)
   },
-
   renderActive() {
     const progress = getFastProgress(this.state.fast)
     const ring = this.ringMetrics()
-
-    createWidget(widget.ARC, { ...ring.main, start_angle: ARC_START, end_angle: ARC_START + ARC_SWEEP, color: TRACK, line_width: ring.mainWidth })
+    text({ x: 0, y: IS_SQUARE ? 42 : 28, w: W, h: 24, value: getStage(progress.elapsedMs), color: COLORS.orange, size: 15 })
+    createWidget(widget.ARC, { ...ring.main, start_angle: ARC_START, end_angle: ARC_START + ARC_SWEEP, color: COLORS.track, line_width: ring.mainWidth })
     this.state.widgets.progressArc = createWidget(widget.ARC, this.mainArcProps(progress))
-    createWidget(widget.ARC, { ...ring.over, start_angle: ARC_START, end_angle: ARC_START + ARC_SWEEP, color: 0x351a12, line_width: ring.overWidth })
+    createWidget(widget.ARC, { ...ring.over, start_angle: ARC_START, end_angle: ARC_START + ARC_SWEEP, color: 0x2b1711, line_width: ring.overWidth })
     this.state.widgets.overtimeArc = createWidget(widget.ARC, this.overtimeArcProps(progress))
 
-    this.state.widgets.stage = createWidget(widget.TEXT, {
-      x: sx(IS_SQUARE ? 55 : 90), y: sy(78), w: DEVICE_WIDTH - sx(IS_SQUARE ? 110 : 180), h: sy(30),
-      text: getStage(progress.elapsedMs), color: ORANGE, text_size: sx(IS_SQUARE ? 18 : 20),
-      align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    this.state.widgets.status = createWidget(widget.TEXT, {
-      x: sx(IS_SQUARE ? 50 : 88), y: sy(116), w: DEVICE_WIDTH - sx(IS_SQUARE ? 100 : 176), h: sy(24),
-      text: progress.complete ? 'OVER GOAL' : 'TIME REMAINING', color: MUTED,
-      text_size: sx(IS_SQUARE ? 15 : 17), align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    this.state.widgets.timer = createWidget(widget.TEXT, {
-      x: sx(IS_SQUARE ? 18 : 43), y: sy(138), w: DEVICE_WIDTH - sx(IS_SQUARE ? 36 : 86), h: sy(76),
-      text: formatCountdown(progress), color: CREAM, text_size: sx(IS_SQUARE ? 46 : 54),
-      align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    this.state.widgets.goal = createWidget(widget.TEXT, {
-      x: sx(IS_SQUARE ? 46 : 90), y: sy(210), w: DEVICE_WIDTH - sx(IS_SQUARE ? 92 : 180), h: sy(28),
-      text: this.goalText(progress), color: progress.complete ? FIRE : WHITE,
-      text_size: sx(IS_SQUARE ? 17 : 19), align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    this.state.widgets.ends = createWidget(widget.TEXT, {
-      x: sx(IS_SQUARE ? 48 : 96), y: sy(238), w: DEVICE_WIDTH - sx(IS_SQUARE ? 96 : 192), h: sy(26),
-      text: `GOAL ${formatClock(progress.endsAt)}`, color: MUTED,
-      text_size: sx(IS_SQUARE ? 15 : 17), align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    createWidget(widget.TEXT, {
-      x: sx(IS_SQUARE ? 70 : 115), y: sy(273), w: DEVICE_WIDTH - sx(IS_SQUARE ? 140 : 230), h: sy(24),
-      text: `${this.state.streaks.current} DAY FLAME  •  BEST ${this.state.streaks.best}`,
-      color: ORANGE, text_size: sx(IS_SQUARE ? 14 : 16), align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-
-    createWidget(widget.BUTTON, {
-      x: sx(IS_SQUARE ? 61 : 105), y: sy(IS_SQUARE ? 315 : 318),
-      w: DEVICE_WIDTH - sx(IS_SQUARE ? 122 : 210), h: sy(58), radius: sx(29),
-      normal_color: FIRE, press_color: HOT, text: 'END FAST',
-      text_size: sx(IS_SQUARE ? 21 : 23), color: WHITE, click_func: () => this.endFast()
-    })
-    createWidget(widget.BUTTON, {
-      x: sx(IS_SQUARE ? 107 : 155), y: sy(IS_SQUARE ? 386 : 394),
-      w: DEVICE_WIDTH - sx(IS_SQUARE ? 214 : 310), h: sy(42), radius: sx(21),
-      normal_color: SURFACE, press_color: TRACK, text: '+ 2 HOURS',
-      text_size: sx(IS_SQUARE ? 17 : 18), color: ORANGE, click_func: () => this.extendFast()
-    })
+    this.state.widgets.status = text({ x: IS_SQUARE ? 55 : 90, y: 106, w: IS_SQUARE ? 280 : 300, h: 24, value: progress.complete ? 'OVER GOAL' : 'TIME REMAINING', color: COLORS.muted, size: 14 })
+    this.state.widgets.timer = text({ x: IS_SQUARE ? 10 : 35, y: 137, w: IS_SQUARE ? 370 : 410, h: 70, value: formatCountdown(progress), color: COLORS.cream, size: IS_SQUARE ? 43 : 51 })
+    this.state.widgets.goal = text({ x: IS_SQUARE ? 50 : 90, y: 210, w: IS_SQUARE ? 290 : 300, h: 29, value: this.goalText(progress), color: progress.complete ? COLORS.fire : COLORS.white, size: 17 })
+    this.state.widgets.ends = text({ x: IS_SQUARE ? 55 : 95, y: 240, w: IS_SQUARE ? 280 : 290, h: 23, value: `GOAL ${formatClock(progress.endsAt)}`, color: COLORS.muted, size: 14 })
+    divider({ x: IS_SQUARE ? 86 : 125, y: 277, w: IS_SQUARE ? 218 : 230 })
+    text({ x: IS_SQUARE ? 40 : 80, y: 286, w: IS_SQUARE ? 310 : 320, h: 22, value: `${this.state.stats.current} DAY FLAME  •  BEST ${this.state.stats.best}`, color: COLORS.orange, size: 13 })
+    pill({ x: IS_SQUARE ? 54 : 94, y: IS_SQUARE ? 323 : 326, w: IS_SQUARE ? 282 : 292, h: 58, label: 'END FAST', color: COLORS.fire, textColor: COLORS.white, onClick: () => this.endFast() })
+    pill({ x: IS_SQUARE ? 111 : 160, y: IS_SQUARE ? 391 : 396, w: IS_SQUARE ? 168 : 160, h: 40, label: '+ 2 HOURS', onClick: () => this.extendFast() })
   },
-
+  navRow(y) {
+    pill({ x: IS_SQUARE ? 28 : 66, y, w: IS_SQUARE ? 100 : 108, h: 38, label: 'STATS', onClick: () => push({ url: 'page/history/index' }) })
+    pill({ x: IS_SQUARE ? 145 : 186, y, w: IS_SQUARE ? 100 : 108, h: 38, label: 'AWARDS', onClick: () => push({ url: 'page/achievements/index' }) })
+    pill({ x: IS_SQUARE ? 262 : 306, y, w: IS_SQUARE ? 100 : 108, h: 38, label: 'SETTINGS', onClick: () => push({ url: 'page/settings/index' }) })
+  },
   ringMetrics() {
-    if (IS_SQUARE) return { main: { x: sx(37), y: sy(42), w: sx(316), h: sy(316) }, over: { x: sx(28), y: sy(33), w: sx(334), h: sy(334) }, mainWidth: sx(17), overWidth: sx(7) }
-    return { main: { x: sx(46), y: sy(32), w: sx(388), h: sy(388) }, over: { x: sx(35), y: sy(21), w: sx(410), h: sy(410) }, mainWidth: sx(19), overWidth: sx(8) }
+    if (IS_SQUARE) return { main: { x: sx(37), y: sy(62), w: sx(316), h: sy(316) }, over: { x: sx(27), y: sy(52), w: sx(336), h: sy(336) }, mainWidth: sx(17), overWidth: sx(7) }
+    return { main: { x: sx(49), y: sy(43), w: sx(382), h: sy(382) }, over: { x: sx(37), y: sy(31), w: sx(406), h: sy(406) }, mainWidth: sx(19), overWidth: sx(8) }
   },
-
-  mainArcProps(progress) {
-    const ring = this.ringMetrics()
-    return { ...ring.main, start_angle: ARC_START, end_angle: ARC_START + Math.max(1, ARC_SWEEP * progress.ringRatio), color: progress.complete ? ORANGE : FIRE, line_width: ring.mainWidth }
-  },
-
-  overtimeArcProps(progress) {
-    const ring = this.ringMetrics()
-    return { ...ring.over, start_angle: ARC_START, end_angle: ARC_START + Math.max(1, ARC_SWEEP * progress.overtimeCycle), color: progress.complete ? HOT : 0x351a12, line_width: ring.overWidth }
-  },
-
-  goalText(progress) {
-    const targetHours = Math.round(this.state.fast.targetMinutes / 60)
-    return progress.complete ? `GOAL COMPLETE  •  ${targetHours}H` : `${progress.percentage}%  •  ${targetHours}H GOAL`
-  },
-
+  mainArcProps(progress) { const r = this.ringMetrics(); return { ...r.main, start_angle: ARC_START, end_angle: ARC_START + Math.max(1, ARC_SWEEP * progress.ringRatio), color: progress.complete ? COLORS.amber : COLORS.fire, line_width: r.mainWidth } },
+  overtimeArcProps(progress) { const r = this.ringMetrics(); return { ...r.over, start_angle: ARC_START, end_angle: ARC_START + Math.max(1, ARC_SWEEP * progress.overtimeCycle), color: progress.complete ? COLORS.hot : 0x2b1711, line_width: r.overWidth } },
+  goalText(progress) { const hours = Math.round(this.state.fast.targetMinutes / 60); return progress.complete ? `GOAL COMPLETE  •  ${hours}H` : `${progress.percentage}%  •  ${hours}H GOAL` },
   updateActiveWidgets(progress) {
     const w = this.state.widgets
     if (!w.timer) return
-    w.timer.setProperty(prop.TEXT, formatCountdown(progress))
-    w.status.setProperty(prop.TEXT, progress.complete ? 'OVER GOAL' : 'TIME REMAINING')
-    w.goal.setProperty(prop.TEXT, this.goalText(progress))
-    w.goal.setProperty(prop.COLOR, progress.complete ? FIRE : WHITE)
-    w.ends.setProperty(prop.TEXT, `GOAL ${formatClock(progress.endsAt)}`)
-    w.stage.setProperty(prop.TEXT, getStage(progress.elapsedMs))
-    w.progressArc.setProperty(prop.MORE, this.mainArcProps(progress))
-    w.overtimeArc.setProperty(prop.MORE, this.overtimeArcProps(progress))
+    w.timer.setProperty(prop.TEXT, formatCountdown(progress)); w.status.setProperty(prop.TEXT, progress.complete ? 'OVER GOAL' : 'TIME REMAINING')
+    w.goal.setProperty(prop.TEXT, this.goalText(progress)); w.goal.setProperty(prop.COLOR, progress.complete ? COLORS.fire : COLORS.white)
+    w.ends.setProperty(prop.TEXT, `GOAL ${formatClock(progress.endsAt)}`); w.progressArc.setProperty(prop.MORE, this.mainArcProps(progress)); w.overtimeArc.setProperty(prop.MORE, this.overtimeArcProps(progress))
   },
-
   endFast() {
-    const endedAt = Date.now()
-    const progress = getFastProgress(this.state.fast, endedAt)
-    addHistory({
-      id: this.state.fast.id,
-      startedAt: this.state.fast.startedAt,
-      endedAt,
-      targetMinutes: this.state.fast.targetMinutes,
-      actualMinutes: Math.floor(progress.elapsedMs / 60000),
-      completed: progress.complete
-    })
-    clearActiveFast()
-    this.state.fast = null
-    push({ url: 'page/history/index' })
+    const endedAt = Date.now(); const progress = getFastProgress(this.state.fast, endedAt)
+    addHistory({ id: this.state.fast.id, startedAt: this.state.fast.startedAt, endedAt, targetMinutes: this.state.fast.targetMinutes, actualMinutes: Math.floor(progress.elapsedMs / 60000), completed: progress.complete })
+    clearActiveFast(); this.state.fast = null; push({ url: 'page/history/index' })
   },
-
-  extendFast() {
-    this.state.fast.targetMinutes += 120
-    this.state.fast.completionAlertSent = false
-    saveActiveFast(this.state.fast)
-    this.tick()
-  }
+  extendFast() { this.state.fast.targetMinutes += 120; this.state.fast.completionAlertSent = false; saveActiveFast(this.state.fast); this.tick() }
 })
