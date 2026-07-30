@@ -1,58 +1,39 @@
-import { createWidget, widget, align } from '@zos/ui'
+import { createWidget, widget } from '@zos/ui'
 import { back, replace } from '@zos/router'
-import { PRESETS, createFast } from '../../utils/fasting'
+import { createFast } from '../../utils/fasting'
 import { saveActiveFast } from '../../utils/storage'
-import { DEVICE_WIDTH, IS_SQUARE, sx, sy } from '../../utils/device'
+import { IS_SQUARE, sx, sy } from '../../utils/device'
+import { COLORS } from '../../theme/index'
+import { text, pill } from '../../components/ui'
 
-const WHITE = 0xffffff
-const ORANGE = 0xff8a18
-const FIRE = 0xff4b16
-const DARK = 0x171311
-const MUTED = 0x9aa4ae
-
+const W = IS_SQUARE ? 390 : 480
+const PLANS = [
+  { hours: 12, ratio: '12:12', label: 'BEGINNER' },
+  { hours: 14, ratio: '14:10', label: 'GENTLE' },
+  { hours: 16, ratio: '16:8', label: 'MOST POPULAR' },
+  { hours: 18, ratio: '18:6', label: 'ADVANCED' },
+  { hours: 20, ratio: '20:4', label: 'WARRIOR' },
+  { hours: 24, ratio: '24H', label: 'FULL DAY' }
+]
 Page({
   build() {
-    createWidget(widget.TEXT, {
-      x: 0, y: sy(IS_SQUARE ? 58 : 40), w: DEVICE_WIDTH, h: sy(42),
-      text: 'CHOOSE YOUR FAST', color: WHITE, text_size: sx(IS_SQUARE ? 26 : 30),
-      align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-    createWidget(widget.TEXT, {
-      x: sx(30), y: sy(IS_SQUARE ? 96 : 82), w: DEVICE_WIDTH - sx(60), h: sy(25),
-      text: 'Your Flame grows when you reach the goal.', color: MUTED,
-      text_size: sx(IS_SQUARE ? 14 : 16), align_h: align.CENTER_H, align_v: align.CENTER_V
-    })
-
-    const left = IS_SQUARE ? 28 : 74
-    const right = IS_SQUARE ? 204 : 250
-    const top = IS_SQUARE ? 130 : 116
-    const gap = IS_SQUARE ? 68 : 75
-    const positions = [
-      [left, top], [right, top], [left, top + gap], [right, top + gap],
-      [left, top + gap * 2], [right, top + gap * 2], [IS_SQUARE ? 117 : 162, top + gap * 3]
-    ]
-
-    PRESETS.forEach((hours, index) => {
-      const position = positions[index]
+    text({ x: 0, y: IS_SQUARE ? 42 : 29, w: W, h: 38, value: 'CHOOSE YOUR FAST', color: COLORS.cream, size: IS_SQUARE ? 25 : 28 })
+    text({ x: 30, y: IS_SQUARE ? 78 : 66, w: W - 60, h: 22, value: 'Pick a goal. You can extend it anytime.', color: COLORS.muted, size: 13 })
+    const left = IS_SQUARE ? 25 : 65, right = IS_SQUARE ? 202 : 247, top = IS_SQUARE ? 111 : 99, row = IS_SQUARE ? 92 : 95
+    PLANS.forEach((plan, i) => {
+      const x = i % 2 === 0 ? left : right, y = top + Math.floor(i / 2) * row
       createWidget(widget.BUTTON, {
-        x: sx(position[0]), y: sy(position[1]), w: sx(156), h: sy(IS_SQUARE ? 54 : 58), radius: sx(29),
-        normal_color: index === 2 ? ORANGE : DARK,
-        press_color: index === 2 ? FIRE : 0x2a211e,
-        text: `${hours} HOURS`, text_size: sx(IS_SQUARE ? 19 : 21),
-        color: index === 2 ? 0x170b03 : WHITE, click_func: () => this.start(hours)
+        x: sx(x), y: sy(y), w: sx(163), h: sy(78), radius: sx(22),
+        normal_color: i === 2 ? 0x3b2014 : COLORS.surface,
+        press_color: i === 2 ? COLORS.fire : COLORS.surfaceRaised,
+        text: plan.ratio,
+        text_size: sx(24),
+        color: i === 2 ? COLORS.amber : COLORS.white,
+        click_func: () => this.start(plan.hours)
       })
+      text({ x: x + 5, y: y + 53, w: 153, h: 17, value: plan.label, color: i === 2 ? COLORS.orange : COLORS.muted, size: 9 })
     })
-
-    createWidget(widget.BUTTON, {
-      x: sx(IS_SQUARE ? 125 : 170), y: sy(IS_SQUARE ? 414 : 420),
-      w: sx(140), h: sy(36), radius: sx(19), normal_color: 0x090807,
-      press_color: DARK, text: 'CANCEL', text_size: sx(17), color: MUTED,
-      click_func: () => back()
-    })
+    pill({ x: IS_SQUARE ? 112 : 170, y: IS_SQUARE ? 401 : 410, w: IS_SQUARE ? 166 : 140, h: 38, label: 'CANCEL', onClick: () => back() })
   },
-
-  start(hours) {
-    saveActiveFast(createFast(hours))
-    replace({ url: 'page/home/index' })
-  }
+  start(hours) { saveActiveFast(createFast(hours)); replace({ url: 'page/home/index' }) }
 })
